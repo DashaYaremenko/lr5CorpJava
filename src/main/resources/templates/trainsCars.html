@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrainsCars Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center">Управління потягами та вагонами</h1>
+
+    <!-- Кнопка для відкриття модального вікна додавання -->
+    <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addTrainCarModal">Додати</button>
+    <!-- Таблиця з потягами -->
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Номер потяга</th>
+            <th>Номер вагону</th>
+            <th>Дата підключення</th>
+            <th>Дії</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="trainCar : ${trainsCars}">
+            <td th:text="${trainCar.id}"></td>
+            <td th:text="${trainCar.trainId.id}"></td>
+            <td th:text="${trainCar.carsId.id}"></td>
+            <td th:text="${trainCar.date_reception}"></td>
+            <td>
+                <!-- Кнопка редагування -->
+                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editTrainCarModal"
+                        th:attr="data-id=${trainCar.id}, data-train-id=${trainCar.trainId}, data-car-id=${trainCar.carsId}, data-date=${trainCar.date_reception}">
+                    Редагувати
+                </button>
+
+                <!-- Кнопка видалення -->
+                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteTrainCarModal"
+                        th:attr="data-id=${trainCar.id}">
+                    Видалити
+                </button>
+
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Модальне вікно додавання -->
+<div class="modal fade" id="addTrainCarModal" tabindex="-1" aria-labelledby="addTrainCarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTrainCarModalLabel">Додати потяг</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/addTrainsCars" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="trainId" class="form-label">Номер потяга</label>
+                        <input type="text" class="form-control" id="trainId" name="TrainID" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="carId" class="form-label">Номер вагону</label>
+                        <input type="text" class="form-control" id="carId" name="CarsID" required>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-primary">Додати</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальне вікно редагування -->
+<div class="modal fade" id="editTrainCarModal" tabindex="-1" aria-labelledby="editTrainCarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTrainCarModalLabel">Редагувати потяг чи вагон</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/editTrainsCars" method="post">
+                <div class="modal-body">
+                    <input type="hidden" id="editId" name="ID">
+                    <div class="mb-3">
+                        <label for="trainIdSelect" class="form-label">Виберіть потяг</label>
+                        <select id="trainIdSelect" name="TrainID" class="form-select" required>
+                            <option value="">-- Виберіть потяг --</option>
+                            <option th:each="train : ${trains}" th:value="${train.id}" th:text="${train.id}"></option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="carIdSelect" class="form-label">Виберіть вагон</label>
+                        <select id="carIdSelect" name="CarsID" class="form-select" required>
+                            <option value="">-- Виберіть вагон --</option>
+                            <option th:each="car : ${cars}" th:value="${car.id}" th:text="${car.id}"></option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dateReception" class="form-label">Дата отримання</label>
+                        <input type="date" class="form-control" id="dateReception" name="Date_Reception" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-warning">Оновити</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Модальне вікно видалення -->
+<div class="modal fade" id="deleteTrainCarModal" tabindex="-1" aria-labelledby="deleteTrainCarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteTrainCarModalLabel">Підтвердити видалення</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/deleteTrainCars" method="get">
+                <div class="modal-body">
+                    <input type="hidden" id="deleteId" name="id">
+                    Ви впевнені, що хочете видалити цей запис?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-danger">Видалити</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Заповнення даних у модальному вікні редагування
+    const editTrainCarModal = document.getElementById('editTrainCarModal');
+    editTrainCarModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        const trainId = button.getAttribute('data-train-id');
+        const carId = button.getAttribute('data-car-id');
+        const date = button.getAttribute('data-date');
+        // Заповнення значень у полях форми
+        document.getElementById('editId').value = id; // ID, яке має бути передано на сервер
+        document.getElementById('trainIdSelect').value = trainId;  // Встановлюємо вибраний потяг
+        document.getElementById('carIdSelect').value = carId;
+        document.getElementById('dateReception').value = date;
+    });
+
+
+    // Заповнення ID у модальному вікні видалення
+    const deleteTrainCarModal = document.getElementById('deleteTrainCarModal');
+    deleteTrainCarModal.addEventListener('show.bs.modal', event => {
+        const button = event.relatedTarget;
+        const id = button.getAttribute('data-id');
+        document.getElementById('deleteId').value = id;
+    });
+</script>
+
+</body>
+</html>
